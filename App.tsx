@@ -1,20 +1,28 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import 'react-native-gesture-handler'
+import * as React from 'react';
+import { StyleSheet } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import MenuDrawer from './navigation/MenuDrawer';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'; // use esse com Expo
+
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider >
+      <NavigationContainer>
+        <MenuDrawer />
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center'
   },
+  title: {
+    fontSize: 24, marginBottom: 20
+  }
 });
