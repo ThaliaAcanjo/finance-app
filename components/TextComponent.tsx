@@ -1,6 +1,7 @@
 // ✅ CORRETO
 import React from 'react';
-import { TextInput } from 'react-native';
+import { TextInput } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
 
 type Props = {
   placeholder: string;
@@ -14,13 +15,20 @@ export default function TextComponent({ placeholder, value, onChangeText }: Prop
       placeholder={placeholder}
       value={value}
       onChangeText={onChangeText}
-      style={{
-        borderWidth: 1,
-        borderColor: '#aaa',
-        marginBottom: 10,
-        padding: 10,
-        borderRadius: 5,
-      }}
+
+      mode="flat"
+      underlineColor="#ccc"
+      activeUnderlineColor="#00BFFF" // cor quando focado
+      selectionColor="#00BFFF" // cor do cursor
+      placeholderTextColor={'#ccc'} // cor do texto placeholder
+      textColor='white' // cor do texto
+      style={styles.inputContainer}
     />
   );
 }
+const styles = StyleSheet.create({
+  inputContainer: { 
+    marginBottom: 10,
+    backgroundColor: 'transparent',
+  },
+});

@@ -9,7 +9,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 export default function App() {
   return (
     <SafeAreaProvider >
-      <NavigationContainer>
+      <NavigationContainer >
         <MenuDrawer />
       </NavigationContainer>
     </SafeAreaProvider>
@@ -20,9 +20,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1, 
     justifyContent: 'center', 
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: '#1C1C1E'
   },
-  title: {
-    fontSize: 24, marginBottom: 20
-  }
 });

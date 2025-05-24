@@ -1,33 +1,48 @@
-// screens/CadastroScreen.tsx
-
-import React, { useState } from 'react';
-import { View, StyleSheet, Button, Alert, Modal, Pressable, Text } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Button, Alert, Modal, Pressable, Text, TouchableOpacity } from 'react-native';
 import TextComponent from '../components/TextComponent';
 import ButtonImageComponent from '../components/ButtonImageComponent';
+import { colors } from '../styles/globalStyles';
+import { MaterialIcons } from '@expo/vector-icons';
+import IconPickerComponent from '../components/IconPickerComponent';
 
 type Props = {
   visible: boolean;
   onClose: () => void;
+  editingCategory?: null | { id: string; icone: string; descricao: string; cor: string };
 };
 
 
-export default function NewCategory({ visible, onClose }: Props) {
-  const [descricao, setDescricao] = useState('');
-  const [valor, setValor] = useState('');
+export default function NewCategory({ visible, onClose, editingCategory }: Props) {
+  const [description, setDescription] = useState('');
+  const [color, setColor] = useState('#000'); // Cor padrão
+  const [icon, setIcon] = useState(''); // Ícone padrão
+  const [modalPickerVisible, setmodalPickerVisible] = useState(false);
 
   function salvar() {
-    if (!descricao || !valor) {
+    if (!description || !color || !icon) {
       Alert.alert('Erro', 'Preencha todos os campos');
       return;
     }
 
-    // Aqui você pode enviar os dados para uma API ou salvar no estado
-    Alert.alert('Salvo com sucesso', `Descrição: ${descricao}\nValor: R$ ${valor}`);
-
     // Resetar os campos
-    setDescricao('');
-    setValor('');
+    setDescription('');
+    setColor('#000'); // Cor padrão
+    setIcon(''); // Ícone padrão
   }
+
+  useEffect(() => {
+    if (editingCategory) {
+      setDescription(editingCategory.descricao);
+      setColor(editingCategory.cor);
+      setIcon(editingCategory.icone);
+    } else {
+      setDescription('');
+      setColor('#000000');
+      setIcon('');
+    }
+  }, [editingCategory]);
+
 
   return (
     // {/* Modal */}
@@ -38,14 +53,33 @@ export default function NewCategory({ visible, onClose }: Props) {
       <View style={styles.modal}>
         <Pressable onPress={() => { }}>
           <View style={styles.modal}>
-            <Text style={styles.title}>Categoria</Text>
+            <Text style={styles.title}>Nova Categoria</Text>
 
             <View style={styles.camposView}>
               <View style={styles.inputContainer}>
-                <TextComponent placeholder="Descrição" value={descricao} onChangeText={setDescricao} />
+                <TextComponent placeholder="Descrição" value={description} onChangeText={setDescription} />
               </View>
-              <ButtonImageComponent imageName="color" />
-              <ButtonImageComponent imageName="icons" />
+              <MaterialIcons name="circle" size={30} color={color} />
+              {/* <TouchableOpacity
+                style={styles.overlay}
+                // activeOpacity={1}
+                onPress={() => setmodalPickerVisible(false)}
+              > */}
+              <TouchableOpacity
+                onPress={() => { setmodalPickerVisible(true); console.log('IconPickerComponent1') }}>
+                {/* <ButtonImageComponent imageName="icons" /> */}
+                {icon ? (
+                  <MaterialIcons name={icon as any} size={30} color={color} />
+                ) : (
+                  <MaterialIcons name="category" size={30} color={color} />
+                )}
+
+
+              </TouchableOpacity>
+              {/* </TouchableOpacity> */}
+
+              <IconPickerComponent modalPickerVisible={modalPickerVisible} onClose={() => setmodalPickerVisible(false)} onSelect={setIcon} />
+
             </View>
 
             <View style={styles.buttons}>
@@ -70,8 +104,8 @@ const styles = StyleSheet.create({
     flex: 1, // isso é a área acima do modal
   },
   modal: {
-    backgroundColor: '#fff',
-    padding: 20,
+    backgroundColor: colors.registerBackground,
+    padding: 10,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
@@ -79,6 +113,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 15,
+    color: colors.textLabelWhite,
   },
   camposView: {
     flexDirection: 'row',

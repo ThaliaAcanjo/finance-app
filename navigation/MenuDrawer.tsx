@@ -11,6 +11,7 @@ import Categories from '../screens/Categories';
 import Expenses from '../screens/Expenses';
 import ExpenseResponsible from '../screens/ExpenseResponsible';
 import Settings from '../screens/Settings';
+import { globalStyles, colors } from '../styles/globalStyles';
 
 const imageMap: Record<string, any> = {
     color: require('../assets/color.png'),
@@ -34,7 +35,7 @@ const MenuDrawer: React.FC = () => {
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <Drawer.Navigator
-                initialRouteName="Home"
+                initialRouteName="Categorias"
                 drawerContent={(props) => (
                     <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1, backgroundColor: '#1E1E1E' }}>
                       <View style={{ padding: 20, alignItems: 'center' }}>
@@ -49,12 +50,23 @@ const MenuDrawer: React.FC = () => {
                   
                 screenOptions={{
                     headerShown: true,
+                    headerStyle: {
+                        backgroundColor: colors.background3,
+                    },
+                    
+                    //headerBackButtonDisplayMode: 'minimal',
+                    headerStatusBarHeight: 0,                
+                    // headerTransparent: true,
+                    headerTintColor: colors.icons,
+                    headerTitleStyle: {
+                        color: 'white',
+                    },
                     drawerStyle: {
-                        backgroundColor: '#1E1E1E',
-                        width: 240,
+                        backgroundColor: '#1C1C1E',//'#1E1E1E',
+                        width: 280,
                     },
                     drawerLabelStyle: {
-                        color: 'white',
+                        color: colors.textLabel,
                         fontSize: 16,
                     },
                     drawerActiveBackgroundColor: '#3E3E3E',
