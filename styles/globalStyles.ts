@@ -21,6 +21,7 @@ export const colors = {
   textLabelWhite: '#fff',
 
   registerBackground: '#212528',
+  pickerBackground:  '#1C1C1E', //'#212528'
 };
 
 export const spacing = {

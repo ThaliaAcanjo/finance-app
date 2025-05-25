@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Modal, Pressable, Platform, KeyboardAvoidingView } from 'react-native';
+import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Modal, Pressable, Platform, KeyboardAvoidingView, Button } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { materialIconNames } from '../utils/materialIconsList'; // seu arquivo de nomes
 import { globalStyles, colors } from '../styles/globalStyles';
@@ -13,6 +13,7 @@ type IconPickerProps = {
 export default function IconPickerComponent({ modalPickerVisible, onClose, onSelect }: IconPickerProps) {
     //modalPickerVisible: boolean, onClose: () => void, onSelect: (iconName: string) => void) => {//{ onSelect }: { onSelect: (iconName: string) => void }) => {
     const [search, setSearch] = useState('');
+    const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
 
     const filteredIcons = materialIconNames.filter((name) =>
         name.toLowerCase().includes(search.toLowerCase())
@@ -38,16 +39,33 @@ export default function IconPickerComponent({ modalPickerVisible, onClose, onSel
                             data={filteredIcons}
                             persistentScrollbar={true}
                             scrollIndicatorInsets={{ right: 0 }}
-
+                            style={{ marginBottom: 10}}
                             keyExtractor={(item) => item}
                             numColumns={4}
                             renderItem={({ item }) => (
-                                <TouchableOpacity style={styles.iconContainer} onPress={() => onSelect(item)}>
-                                    <MaterialIcons name={item as any} size={30} color="#ccc" />
+                                <TouchableOpacity 
+                                    style={styles.iconContainer} 
+                                    onPress={() => {setSelectedIcon(item);}}>
+                                    <MaterialIcons name={item as any} size={30} color={selectedIcon === item ? '#00BFFF' : '#ccc'} />
                                     {/* <Text style={styles.iconLabel}>{item}</Text> */}
                                 </TouchableOpacity>
                             )}
                         />
+                        {/* botão de selecionar e cancelar */}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+                            <Button
+                                title="Selecionar"
+                                onPress={() => {
+                                    onSelect(selectedIcon || '');
+                                    setSelectedIcon(null);
+                                    onClose();
+                                }}
+                                color={colors.primary} />
+                            <Button
+                                title="Cancelar"
+                                onPress={onClose}
+                                color={colors.primary} />
+                        </View>
                     </View>
                 </View>
             </KeyboardAvoidingView>
@@ -74,7 +92,7 @@ const styles = StyleSheet.create({
     },
     container: {
         padding: 10,
-        backgroundColor: '#1C1C1E',
+        backgroundColor: colors.pickerBackground,
         flex: 1,
         justifyContent: 'center',
         position: 'absolute',

@@ -1,40 +1,23 @@
 //estrutura do componente
-import React, { useState, useRef } from 'react';
-import { Text, View, Pressable, TouchableOpacity, Image, FlatList, StyleSheet, Modal } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { Text, View, TouchableOpacity, FlatList, StyleSheet, Modal } from 'react-native';
 import { DrawerScreenProps } from '@react-navigation/drawer';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-
-import NewCategory from './NewCategory';
 import { globalStyles, colors, fontSizes } from '../styles/globalStyles';
-import { plugins } from '../babel.config';
-import { hexToRgba } from '../utils/functions';
+import { hexToRgba, colorWhite } from '../utils/functions';
 
+import { useCategory, CategoryContext } from '../context/CategoryContext';
+import Category from './Category';
 
-const dados = [
-  { id: '1', icone: "category", descricao: 'Alimentação', cor: '#BA55D3' },
-  { id: '2', icone: "circle", descricao: 'Transporte', cor: '#FF69B4' },
-  { id: '3', icone: "restaurant", descricao: 'Transporte', cor: '#40E0D0' },
-  { id: '4', icone: "circle", descricao: 'Transporte', cor: '#DC143C' },
-  { id: '5', icone: "circle", descricao: 'Transporte', cor: '#FFA500' },
-  { id: '6', icone: "circle", descricao: 'Transporte', cor: '#90EE90' },
-  { id: '7', icone: "circle", descricao: 'Alimentação', cor: '#00BFFF' },
-  { id: '8', icone: "circle", descricao: 'Alimentação', cor: '#BA55D3' },
-  { id: '9', icone: "circle", descricao: 'Alimentação', cor: '#FF69B4' },
-  { id: '10', icone: "circle", descricao: 'Alimentação', cor: '#40E0D0' },
-  { id: '11', icone: "circle", descricao: 'Transporte', cor: '#DC143C' },
-  { id: '12', icone: "circle", descricao: 'Transporte', cor: '#FFA500' },
-  { id: '13', icone: "circle", descricao: 'Transporte', cor: '#90EE90' },
-  { id: '14', icone: "circle", descricao: 'Transporte', cor: '#00BFFF' },
-  { id: '15', icone: "circle", descricao: 'Transporte', cor: '#BA55D3' },
-  { id: '16', icone: "circle", descricao: 'Alimentação', cor: '#90EE90' },
-  { id: '17', icone: "circle", descricao: 'Alimentação', cor: '#40E0D0' },
-  { id: '18', icone: "circle", descricao: 'Transporte', cor: '#DC143C' },
-  { id: '19', icone: "circle", descricao: 'Transporte', cor: '#FFA500' },
-  { id: '20', icone: "circle", descricao: 'Transporte', cor: '#90EE90' },
-  { id: '21', icone: "circle", descricao: 'Transporte', cor: '#00BFFF' },
-];
+type objCategory = {
+  id: string;
+  description: string;
+  icon: string;
+  color: string;
+};
 
+const initialData: objCategory[] = [];
 
 type RootDrawerParamList = {
   Categorias: undefined;
@@ -43,17 +26,25 @@ type RootDrawerParamList = {
 
 type Props = DrawerScreenProps<RootDrawerParamList, 'Categorias'>;
 export default function Categories({ navigation }: Props) {
-  const [editingCategory, setEditingCategory] = useState<null | { id: string; icone: any; descricao: string; cor: string }>(null);
+  const context = React.useContext(CategoryContext);
+  if (!context) { throw new Error('Category must be used within a CategoryProvider'); }
+  const { deleteCategory } = context;
+
+  const { categories } = useCategory();
+  const [data, setData] = useState<objCategory[]>(categories);
+
+  const [editingCategory, setEditingCategory] = useState<null | { id: string; icon: any; description: string; color: string }>(null);
   const [modalCategoryVisible, setModalCategoryVisible] = useState(false);
-  // const closeModal = () => setModalCategoryVisible(false);
 
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
   const [menuVisible, setMenuVisible] = useState(false); // para o modal de menu
 
-  const itemRefs = useRef<Record<string, any>>({});
+  // const itemRefs = useRef<Record<string, any>>({});
+  const itemRefs = useRef<Record<string, React.ComponentRef<typeof TouchableOpacity>>>({});
 
   const openMenu = (id: string) => {
+    console.log(`openMenu: ${id}`);
     const itemRef = itemRefs.current[id];
 
     if (itemRef) {
@@ -67,22 +58,32 @@ export default function Categories({ navigation }: Props) {
     }
   };
 
-  const renderItem = ({ item }: { item: { id: string; icone: any; descricao: string; cor: string } }) => (
+  const renderItem = ({ item }: { item: objCategory }) => (
     <View style={styles.row}>
-      <View style={[styles.color, { backgroundColor: hexToRgba(item.cor, 0.15), }]}  >
-        <Image source={item.icone} style={styles.icon} />
+
+      <View style={[styles.color, { backgroundColor: colorWhite(item.color, 15), }]}  >
+        <MaterialIcons name={item.icon as any} size={20} color={"#242729"} />
       </View>
-      <Text style={styles.description}>{item.descricao}</Text>
+      <Text style={styles.description}>{item.description}</Text>
 
       {/* posteriormente pode ter subcategorias */}
-      <View style={[styles.color, { backgroundColor: hexToRgba(item.cor, 0.15), }]}  >
-        <MaterialIcons name="local-offer" size={25} color={item.cor} />
+      <View style={[styles.color, { backgroundColor: hexToRgba(colorWhite(item.color, 15), 0.1), }]}  >
+        <MaterialIcons name="local-offer" size={20} color={colorWhite(item.color, 15)} />
       </View>
+
       <TouchableOpacity
         style={styles.option}
         ref={(ref) => {
           if (ref) itemRefs.current[item.id] = ref;
         }}
+        // ref={(ref: React.ComponentRef<typeof TouchableOpacity> | null) => {
+        //   if (ref) {
+        //     itemRefs.current[item.id] = ref;
+        //   } else {
+        //     delete itemRefs.current[item.id]; // opcional para limpar quando for null
+        //   }
+        // }}
+
         onPress={() => openMenu(item.id)}
       >
         <MaterialIcons name="more-vert" size={20} color={colors.icons} />
@@ -90,33 +91,32 @@ export default function Categories({ navigation }: Props) {
     </View>
   );
 
-  const editCategory = (item: { id: string; icone: any; descricao: string; cor: string }) => {
+  useEffect(() => {
+    setData(categories);
+  }, [categories]);
+
+
+  const goToCategory = (item: { id: string; icon: any; description: string; color: string } | null) => {
     setEditingCategory(item);
     setModalCategoryVisible(true);
-  };
-  const newCategory = () => {
-    setEditingCategory(null);
-    setModalCategoryVisible(true);
   }
-
-  const closeMenu = () => setMenuVisible(false);
 
   return (
     <SafeAreaView edges={['bottom']} style={globalStyles.container} >
       <View >
         {/* o touch deve ficar em cima fixo */}
         <TouchableOpacity style={styles.plusIcon}
-          onPress={() => newCategory()}>
+          onPress={() => goToCategory(null)}>
           <MaterialIcons name="add" size={30} color={colors.iconPlus} />
         </TouchableOpacity>
 
-        <NewCategory 
-              visible={modalCategoryVisible} 
-              onClose={() => setModalCategoryVisible(false)} 
-              editingCategory={editingCategory} />
+        <Category
+          visible={modalCategoryVisible}
+          onClose={() => setModalCategoryVisible(false)}
+          category={editingCategory} />
 
         <FlatList
-          data={dados}
+          data={data}
           persistentScrollbar={true}
           scrollIndicatorInsets={{ right: 0 }}
           indicatorStyle='white'
@@ -139,23 +139,30 @@ export default function Categories({ navigation }: Props) {
               >
                 <TouchableOpacity onPress={() => {
                   setMenuVisible(false);
-                  const item = dados.find((item) => item.id === selectedItem);
-                  if (item) editCategory(item);
-                }}>
-                  <Text style={styles.modalOption}>✏️ Editar</Text>
+                  const item = data.find((item) => item.id === selectedItem);
+                  if (item) goToCategory(item);
+                }} style={styles.buttons}>
+                  <MaterialIcons name="edit" size={20} color={colors.icons} />
+                  <Text style={styles.modalOption}>Editar</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => {
-                  // console.log("Excluir", selectedItem);
-                  setMenuVisible(false);
-                }}>
-                  <Text style={styles.modalOption}>🗑️ Excluir</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    setMenuVisible(false);
+                    const item = data.find((item) => item.id === selectedItem);
+                    if (item) {
+                      deleteCategory(item.id);
+                    }
+                  }} style={styles.buttons}>
+                  <MaterialIcons name="delete" size={20} color={colors.icons} />
+                  <Text style={styles.modalOption}>Excluir</Text>
                 </TouchableOpacity>
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
         </Modal >
       </View >
+
     </SafeAreaView >
   );
 }
@@ -177,8 +184,8 @@ const styles = StyleSheet.create({
     color: colors.textLabelWhite
   },
   color: {
-    width: 30,
-    height: 30,
+    width: 35,
+    height: 35,
     borderRadius: 20,
     marginRight: 10,
     alignItems: 'center',
@@ -212,5 +219,10 @@ const styles = StyleSheet.create({
     color: '#ccc',
     paddingVertical: 6,
     fontSize: 16,
+  },
+  buttons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 });

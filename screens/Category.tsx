@@ -5,25 +5,45 @@ import ButtonImageComponent from '../components/ButtonImageComponent';
 import { colors } from '../styles/globalStyles';
 import { MaterialIcons } from '@expo/vector-icons';
 import IconPickerComponent from '../components/IconPickerComponent';
+import ColorPickerComponent from '../components/ColorPickerComponent';
+import { CategoryContext } from '../context/CategoryContext';
+import { v4 as uuidv4 } from 'uuid'; // Para gerar ID único
+import { nanoid } from 'nanoid';
+
 
 type Props = {
   visible: boolean;
   onClose: () => void;
-  editingCategory?: null | { id: string; icone: string; descricao: string; cor: string };
+  category?: null | { id: string; icon: string; description: string; color: string };
 };
 
 
-export default function NewCategory({ visible, onClose, editingCategory }: Props) {
+export default function Category({ visible, onClose, category }: Props) {
+  const context = React.useContext(CategoryContext);
+  if (!context) { throw new Error('Category must be used within a CategoryProvider');}
+  const { addCategory, updateCategory } = context;
+
   const [description, setDescription] = useState('');
   const [color, setColor] = useState('#000'); // Cor padrão
   const [icon, setIcon] = useState(''); // Ícone padrão
-  const [modalPickerVisible, setmodalPickerVisible] = useState(false);
+  const [modalIconPickerVisible, setModalIconPickerVisible] = useState(false);
+  const [modalColorPickerVisible, setModalColorPickerVisible] = useState(false);  
 
+  
   function salvar() {
     if (!description || !color || !icon) {
       Alert.alert('Erro', 'Preencha todos os campos');
       return;
     }
+    console.log('salvar', description, color, icon);
+    
+    if (category) {
+      updateCategory(category.id, { description, color, icon });
+    } else {      
+      addCategory({ id: uuidv4(), description, color, icon });
+    }
+
+    onClose();
 
     // Resetar os campos
     setDescription('');
@@ -32,16 +52,16 @@ export default function NewCategory({ visible, onClose, editingCategory }: Props
   }
 
   useEffect(() => {
-    if (editingCategory) {
-      setDescription(editingCategory.descricao);
-      setColor(editingCategory.cor);
-      setIcon(editingCategory.icone);
+    if (category) {
+      setDescription(category.description);
+      setColor(category.color);
+      setIcon(category.icon);
     } else {
       setDescription('');
       setColor('#000000');
       setIcon('');
     }
-  }, [editingCategory]);
+  }, [category]);
 
 
   return (
@@ -59,27 +79,28 @@ export default function NewCategory({ visible, onClose, editingCategory }: Props
               <View style={styles.inputContainer}>
                 <TextComponent placeholder="Descrição" value={description} onChangeText={setDescription} />
               </View>
-              <MaterialIcons name="circle" size={30} color={color} />
-              {/* <TouchableOpacity
-                style={styles.overlay}
-                // activeOpacity={1}
-                onPress={() => setmodalPickerVisible(false)}
-              > */}
+              
               <TouchableOpacity
-                onPress={() => { setmodalPickerVisible(true); console.log('IconPickerComponent1') }}>
+                onPress={() => { setModalColorPickerVisible(true)}}>
+                <MaterialIcons name="circle" size={30} color={color} />  
+              </TouchableOpacity>              
+              <ColorPickerComponent 
+                modalPickerVisible={modalColorPickerVisible} 
+                onClose={() => setModalColorPickerVisible(false)} 
+                onSelect={setColor} 
+                currentColor={color}  // <-- passe a cor atual aqui
+                />           
+              
+              <TouchableOpacity
+                onPress={() => { setModalIconPickerVisible(true) }}>
                 {/* <ButtonImageComponent imageName="icons" /> */}
                 {icon ? (
                   <MaterialIcons name={icon as any} size={30} color={color} />
                 ) : (
                   <MaterialIcons name="category" size={30} color={color} />
                 )}
-
-
               </TouchableOpacity>
-              {/* </TouchableOpacity> */}
-
-              <IconPickerComponent modalPickerVisible={modalPickerVisible} onClose={() => setmodalPickerVisible(false)} onSelect={setIcon} />
-
+              <IconPickerComponent modalPickerVisible={modalIconPickerVisible} onClose={() => setModalIconPickerVisible(false)} onSelect={setIcon} />
             </View>
 
             <View style={styles.buttons}>
