@@ -17,8 +17,6 @@ type objCategory = {
   color: string;
 };
 
-const initialData: objCategory[] = [];
-
 type RootDrawerParamList = {
   Categorias: undefined;
   Configurações: undefined;
@@ -44,14 +42,13 @@ export default function Categories({ navigation }: Props) {
   const itemRefs = useRef<Record<string, React.ComponentRef<typeof TouchableOpacity>>>({});
 
   const openMenu = (id: string) => {
-    console.log(`openMenu: ${id}`);
+    // console.log(`openMenu: ${id}`);
     const itemRef = itemRefs.current[id];
 
     if (itemRef) {
       itemRef.measure((fx: number, fy: number, width: number, height: number, px: number, py: number) => {
         setMenuPosition({ x: px - (width * 2) - 10, y: py });
-        //px - (width*2), y: py + height + fy});
-        console.log(`fx: ${fx}, fy: ${fy}, width: ${width}, height: ${height}, px: ${px}, py: ${py}`);
+        // console.log(`fx: ${fx}, fy: ${fy}, width: ${width}, height: ${height}, px: ${px}, py: ${py}`);
         setSelectedItem(id);
         setMenuVisible(true);
       });

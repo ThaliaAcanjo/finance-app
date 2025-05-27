@@ -3,7 +3,7 @@ import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { DrawerContentScrollView, DrawerScreenProps, DrawerItemList } from '@react-navigation/drawer';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import HomeScreen from '../screens/HomeScreen';
@@ -12,12 +12,7 @@ import Expenses from '../screens/Expenses';
 import ExpenseResponsible from '../screens/ExpenseResponsible';
 import Settings from '../screens/Settings';
 import { globalStyles, colors } from '../styles/globalStyles';
-
-const imageMap: Record<string, any> = {
-    color: require('../assets/color.png'),
-    icons: require('../assets/icons.png'),
-    icone2: require('../assets/super.png'),
-};
+import { hexToRgba } from '../utils/functions';
 
 type DrawerParamList = {
     Home: undefined; // Define the routes and their params
@@ -27,86 +22,123 @@ type DrawerParamList = {
     Categorias: undefined;
 };
 
-type Props = DrawerScreenProps<DrawerParamList, 'Home'>;
+// type Props = DrawerScreenProps<DrawerParamList, 'Home'>;
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
 const MenuDrawer: React.FC = () => {
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, padding: 0, margin: 0 }}>
             <Drawer.Navigator
                 initialRouteName="Categorias"
                 drawerContent={(props) => (
-                    <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1, backgroundColor: '#1E1E1E' }}>
-                      <View style={{ padding: 20, alignItems: 'center' }}>
-                        <Image
-                          source={imageMap['icone2']}
-                          style={{ width: 60, height: 60, marginBottom: 20 }}
-                        />
-                      </View>
-                      <DrawerItemList {...props} />
+                    // 1E1E1E
+                    <DrawerContentScrollView
+                        {...props}
+                        contentContainerStyle={{ flex: 1, padding: 0, margin: 0 }}
+                    >
+                        <DrawerItemList {...props} />
                     </DrawerContentScrollView>
-                  )}
-                  
+                )}
+
                 screenOptions={{
                     headerShown: true,
                     headerStyle: {
                         backgroundColor: colors.background3,
                     },
-                    
-                    //headerBackButtonDisplayMode: 'minimal',
-                    headerStatusBarHeight: 0,                
-                    // headerTransparent: true,
+                    // headerBackButtonDisplayMode: 'minimal',
+                    headerStatusBarHeight: 0,
                     headerTintColor: colors.icons,
                     headerTitleStyle: {
                         color: 'white',
                     },
                     drawerStyle: {
                         backgroundColor: '#1C1C1E',//'#1E1E1E',
-                        width: 280,
+                        width: 300,
+                        padding: 0,
+                        margin: 0
                     },
-                    drawerLabelStyle: {
-                        color: colors.textLabel,
-                        fontSize: 16,
-                    },
-                    drawerActiveBackgroundColor: '#3E3E3E',
-                    drawerActiveTintColor: 'white',
+                    // drawerLabelStyle: {
+                        // fontSize: 16,
+                    // },
+                    drawerActiveBackgroundColor: hexToRgba(colors.menuColorActive, 0.2),
+                    drawerActiveTintColor: colors.menuColorActive,
                     drawerInactiveTintColor: 'white',
+                    drawerItemStyle: {
+                        borderRadius: 0,
+                        borderBottomRightRadius: 30,
+                        borderTopRightRadius: 30,
+                        height: 50,
+                    },
+                    drawerContentContainerStyle: {
+                        padding: 0,
+                        margin: 0,
+                    },
+                    drawerContentStyle: {
+                        padding: 0,
+                        margin: 0
+                    },
                 }}
-                >
+            >
                 <Drawer.Screen
                     name="Home"
                     component={HomeScreen}
                     options={
-                        { 
-                            drawerLabel: (({focused}) => <Text style={{color: focused ? 'white' : 'white'}}> Home</Text>),
-                            drawerIcon: (({focused}) => (
+                        {
+                            drawerLabel: (({ focused }) => <Text style={{ color: focused ? colors.menuColorActive : 'white' }}> Home</Text>),
+                            drawerIcon: (({ focused }) => (
                                 <View style={{ flexDirection: 'row' }}>
-                                  <MaterialIcons  name="home" color={focused ? 'white' : 'white'} size={24} />                                  
+                                    <MaterialIcons name="home" color={focused ? colors.menuColorActive : 'white'} size={24} />
                                 </View>
-                              ))                        
-                    }}
+                            ))
+                        }}
 
                 />
                 <Drawer.Screen
                     name="Categorias"
                     component={Categories}
-                    options={{ drawerLabel: 'Categorias' }}
+                    options={{ 
+                        drawerLabel: 'Categorias', 
+                        drawerIcon: ({ focused }) => (
+                            <View style={{ flexDirection: 'row' }}>
+                                <MaterialIcons name="category" color={focused ? colors.menuColorActive : 'white'} size={24} />
+                            </View>
+                        )
+                    }}                    
                 />
                 <Drawer.Screen
                     name="Despesas"
                     component={Expenses}
-                    options={{ drawerLabel: 'Despesas' }}
+                    options={{ 
+                        drawerLabel: 'Despesas',
+                        drawerIcon: ({ focused }) => (
+                            <View style={{ flexDirection: 'row' }}>
+                                <MaterialIcons name="attach-money" color={focused ? colors.menuColorActive : 'white'} size={24} />
+                            </View>
+                        )
+                    }}
                 />
                 <Drawer.Screen
                     name="Responsável"
                     component={ExpenseResponsible}
-                    options={{ drawerLabel: 'Responsável' }}
+                    options={{ 
+                        drawerLabel: 'Responsável',
+                        drawerIcon: ({ focused }) => (
+                            <View style={{ flexDirection: 'row' }}>
+                                <MaterialIcons name="person" color={focused ? colors.menuColorActive : 'white'} size={24} />
+                            </View>
+                        )
+                    }}
                 />
                 <Drawer.Screen
                     name="Configurações"
                     component={Settings}
-                    options={{ drawerLabel: 'Configurações' }}
+                    options={{ drawerLabel: 'Configurações',
+                        drawerIcon: ({ focused }) => (
+                            <View style={{ flexDirection: 'row' }}>
+                                <MaterialIcons name="settings" color={focused ? colors.menuColorActive : 'white'} size={24} />
+                            </View>
+                    )}}
                 />
             </Drawer.Navigator>
         </SafeAreaView>
@@ -118,8 +150,6 @@ const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
         alignItems: 'center'
-        //height: 100,
-        //width: 100,
     },
 
     image: {

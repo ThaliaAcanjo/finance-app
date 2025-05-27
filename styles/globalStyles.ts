@@ -22,6 +22,7 @@ export const colors = {
 
   registerBackground: '#212528',
   pickerBackground:  '#1C1C1E', //'#212528'
+  menuColorActive: '#88B5F5',  //'#82A8EA', 
 };
 
 export const spacing = {
